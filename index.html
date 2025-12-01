@@ -16,14 +16,13 @@
             font-family: 'Montserrat', sans-serif;
         }
 
-        /* Container chính */
         .container {
             position: relative;
             width: 100vw;
             height: 100vh;
         }
 
-        /* Video làm nền */
+        /* Video nền */
         #bg-video {
             position: absolute;
             top: 0;
@@ -34,7 +33,7 @@
             z-index: 1;
         }
 
-        /* Nút bắt đầu */
+        /* Màn hình bắt đầu */
         #start-screen {
             position: absolute;
             top: 0; left: 0;
@@ -75,14 +74,14 @@
             animation: none;
         }
 
-        /* Màn hình trắng cuối cùng */
+        /* Màn hình thư cuối cùng - Nền Trắng */
         #final-screen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #ffffff; 
+            background-color: #ffffff; /* Giữ nguyên màu trắng */
             z-index: 20; 
             display: flex;
             flex-direction: column;
@@ -99,7 +98,7 @@
             color: #333;
             font-weight: 500;
             text-align: center;
-            margin-bottom: 30px; /* Giảm khoảng cách để nhường chỗ cho footer */
+            margin-bottom: 30px; 
             max-width: 800px;
             padding: 0 20px;
             transform: translateY(20px);
@@ -115,11 +114,11 @@
         }
 
         .letter-footer {
-            width: 70%; /* Mở rộng chiều ngang footer chút để thoáng */
+            width: 70%; 
             max-width: 700px;
             display: flex;
             justify-content: space-between;
-            align-items: flex-end; /* Căn đáy cho thẳng hàng */
+            align-items: flex-end; 
             border-top: 2px solid #000;
             padding-top: 20px;
             opacity: 0;
@@ -149,12 +148,11 @@
             font-weight: bold;
         }
 
-        /* Style cho chữ ký 1412 */
+        /* Ảnh chữ ký Kid - File PNG trong suốt */
         .kid-signature-img {
-            width: 100px; /* Kích thước chữ ký */
+            width: 120px; 
             height: auto;
-            margin-bottom: -15px; /* Kéo tên sát lên chữ ký một chút */
-            mix-blend-mode: multiply; /* Xóa nền trắng của ảnh để tệp vào giấy */
+            margin-bottom: -15px; 
             display: block;
         }
 
@@ -165,7 +163,7 @@
             margin-top: 10px;
         }
 
-        /* LOGO KAITO KID ở góc */
+        /* LOGO KAITO KID - File PNG trong suốt */
         #kaito-logo {
             position: absolute;
             bottom: 20px;
@@ -175,11 +173,11 @@
             opacity: 0;
             transition: opacity 1s ease 2s;
             z-index: 25;
-            mix-blend-mode: multiply;
+            /* Không dùng blend mode nữa vì ảnh đã tách nền */
         }
         
         #kaito-logo.show {
-            opacity: 0.8;
+            opacity: 1;
         }
 
         #sign-btn {
@@ -192,7 +190,7 @@
             cursor: pointer;
             font-family: 'Montserrat', sans-serif;
             transition: all 0.3s;
-            margin-bottom: 10px; /* Căn chỉnh nút */
+            margin-bottom: 10px; 
         }
 
         #sign-btn:hover {
@@ -252,7 +250,7 @@
                 </div>
             </div>
 
-            <img id="kaito-logo" src="kaito-logo.jpg" alt="Kaito Kid Logo">
+            <img id="kaito-logo" src="kaito-logo.png" alt="Kaito Kid Logo">
         </div>
     </div>
 
