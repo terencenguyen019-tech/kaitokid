@@ -34,7 +34,7 @@
             z-index: 1;
         }
 
-        /* Nút bắt đầu (Giao diện ban đầu) */
+        /* Nút bắt đầu */
         #start-screen {
             position: absolute;
             top: 0; left: 0;
@@ -74,7 +74,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #ffffff; /* Màn hình trắng, tệp với nền ảnh jpg */
+            background-color: #ffffff; /* Trùng màu với lá bài trong video */
             z-index: 20; /* Đè lên video */
             display: flex;
             flex-direction: column;
@@ -82,7 +82,8 @@
             align-items: center;
             opacity: 0; /* Ẩn ban đầu */
             visibility: hidden;
-            transition: opacity 1.5s ease-in; /* Hiệu ứng hiện dần */
+            /* Transition nhanh hơn (0.8s) để khớp với tốc độ bài bay */
+            transition: opacity 0.8s ease-out; 
         }
 
         .letter-content {
@@ -94,6 +95,14 @@
             margin-bottom: 50px;
             max-width: 800px;
             padding: 0 20px;
+            /* Hiệu ứng trượt nhẹ lên */
+            transform: translateY(20px);
+            transition: transform 1s ease-out;
+        }
+        
+        /* Class để kích hoạt hiệu ứng trượt chữ */
+        .show-content .letter-content {
+            transform: translateY(0);
         }
 
         .letter-footer {
@@ -127,17 +136,16 @@
             color: #0a0a2a;
         }
 
-        /* Logo Kaito Kid ở góc */
+        /* Logo Kaito Kid */
         #kaito-logo {
             position: absolute;
             bottom: 30px;
             right: 30px;
-            width: 120px; /* Kích thước logo */
+            width: 120px;
             height: auto;
             opacity: 0.9;
         }
 
-        /* Nút ký tên */
         #sign-btn {
             padding: 10px 30px;
             font-size: 1.1rem;
@@ -214,7 +222,9 @@
         const signBtn = document.getElementById('sign-btn');
         const recipientArea = document.getElementById('recipient-area');
 
-        // 1. Reset video khi tải trang
+        let isLetterShown = false; // Biến cờ để đảm bảo thư chỉ hiện 1 lần
+
+        // 1. Reset video
         video.pause();
         video.currentTime = 0;
 
@@ -227,10 +237,20 @@
             video.play();
         });
 
-        // 3. Khi video kết thúc -> Hiện màn hình trắng
-        video.addEventListener('ended', () => {
-            finalScreen.style.visibility = 'visible';
-            finalScreen.style.opacity = '1';
+        // 3. SỬ DỤNG TIMEUPDATE thay vì ENDED
+        // Video này dài khoảng 7s. Cảnh lá bài bắn ra full màn hình trắng là khoảng 5.5s
+        video.addEventListener('timeupdate', () => {
+            // Nếu video chạy qua giây thứ 5.5 và thư chưa hiện
+            if (video.currentTime >= 5.5 && !isLetterShown) {
+                isLetterShown = true; // Đánh dấu đã hiện
+
+                // Hiện màn hình trắng (lá thư)
+                finalScreen.style.visibility = 'visible';
+                finalScreen.style.opacity = '1';
+                
+                // Thêm class để chữ trượt lên nhẹ nhàng
+                finalScreen.classList.add('show-content');
+            }
         });
 
         // 4. Chức năng ký tên
