@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gửi Em</title>
+    <title>Gửi Em - Kaito Kid</title>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body, html {
@@ -21,9 +21,6 @@
             position: relative;
             width: 100vw;
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
         /* Video làm nền */
@@ -33,20 +30,21 @@
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Đảm bảo video full màn hình */
+            object-fit: cover;
             z-index: 1;
         }
 
         /* Nút bắt đầu (Giao diện ban đầu) */
         #start-screen {
             position: absolute;
+            top: 0; left: 0;
             z-index: 10;
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.3); /* Phủ tối nhẹ để rõ chữ */
+            background: rgba(0,0,0,0.6);
             transition: opacity 0.5s;
         }
 
@@ -60,7 +58,6 @@
             cursor: pointer;
             font-family: 'Dancing Script', cursive;
             transition: all 0.3s ease;
-            text-shadow: 0 0 10px rgba(0,0,0,0.5);
             box-shadow: 0 0 20px rgba(255,255,255,0.2);
         }
 
@@ -70,39 +67,42 @@
             transform: scale(1.1);
         }
 
-        /* Nội dung bức thư (Hiện ra sau khi video chạy xong) */
-        #letter-overlay {
+        /* Màn hình trắng cuối cùng (Full màn hình) */
+        #final-screen {
             position: absolute;
-            z-index: 20;
-            width: 80%; /* Chiếm 80% màn hình để che logo trong video */
-            max-width: 600px;
-            height: auto;
-            background: rgba(245, 245, 245, 0.95); /* Màu trắng kem giống lá bài */
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            text-align: center;
-            opacity: 0; /* Ẩn ban đầu */
-            visibility: hidden;
-            transition: opacity 1.5s ease;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff; /* Màn hình trắng, tệp với nền ảnh jpg */
+            z-index: 20; /* Đè lên video */
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            justify-content: center;
+            align-items: center;
+            opacity: 0; /* Ẩn ban đầu */
+            visibility: hidden;
+            transition: opacity 1.5s ease-in; /* Hiệu ứng hiện dần */
         }
 
         .letter-content {
-            font-size: 1.2rem;
-            line-height: 1.6;
+            font-size: 1.5rem;
+            line-height: 1.8;
             color: #333;
             font-weight: 500;
+            text-align: center;
+            margin-bottom: 50px;
+            max-width: 800px;
+            padding: 0 20px;
         }
 
         .letter-footer {
+            width: 60%;
+            max-width: 600px;
             display: flex;
             justify-content: space-between;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px dashed #ccc;
+            border-top: 2px solid #000;
+            padding-top: 30px;
         }
 
         .footer-col {
@@ -113,25 +113,35 @@
         }
 
         .role-title {
-            font-size: 0.9rem;
+            font-size: 1rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #666;
-            margin-bottom: 10px;
+            letter-spacing: 2px;
+            color: #555;
+            margin-bottom: 15px;
+            font-weight: bold;
         }
 
         .signature {
             font-family: 'Dancing Script', cursive;
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             color: #0a0a2a;
-            margin-top: 5px;
+        }
+
+        /* Logo Kaito Kid ở góc */
+        #kaito-logo {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 120px; /* Kích thước logo */
+            height: auto;
+            opacity: 0.9;
         }
 
         /* Nút ký tên */
         #sign-btn {
-            padding: 8px 20px;
-            font-size: 1rem;
-            background: #0a0a2a;
+            padding: 10px 30px;
+            font-size: 1.1rem;
+            background: #000;
             color: white;
             border: none;
             border-radius: 5px;
@@ -141,14 +151,14 @@
         }
 
         #sign-btn:hover {
-            background: #2a2a6a;
+            background: #333;
+            transform: translateY(-2px);
         }
 
-        /* Class khi đã ký tên (biến nút thành chữ) */
         .signed-text {
             font-family: 'Dancing Script', cursive;
-            font-size: 1.8rem;
-            color: #d63031; /* Màu đỏ như đóng dấu son */
+            font-size: 2rem;
+            color: #d63031;
             animation: stamp 0.3s ease-out forwards;
         }
 
@@ -171,7 +181,7 @@
             <button id="start-btn">Điều cuối cùng tôi muốn gửi tới em</button>
         </div>
 
-        <div id="letter-overlay">
+        <div id="final-screen">
             <div class="letter-content">
                 "Gửi đến người bạn bé nhỏ của tôi,<br>
                 hẹn gặp lại vào một ngày không xa,<br>
@@ -181,17 +191,18 @@
             <div class="letter-footer">
                 <div class="footer-col">
                     <span class="role-title">Người gửi</span>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Signature_sample.svg/1200px-Signature_sample.svg.png" style="width: 50px; opacity: 0.5; margin-bottom: -10px;" alt="sign">
                     <span class="signature">Tuấn Kaito</span>
                 </div>
 
                 <div class="footer-col">
                     <span class="role-title">Người nhận</span>
-                    <div id="recipient-area" style="margin-top: 15px;">
+                    <div id="recipient-area">
                         <button id="sign-btn">Ký tên</button>
                     </div>
                 </div>
             </div>
+
+            <img id="kaito-logo" src="kaito-logo.jpg" alt="Kaito Kid Logo">
         </div>
     </div>
 
@@ -199,36 +210,31 @@
         const video = document.getElementById('bg-video');
         const startScreen = document.getElementById('start-screen');
         const startBtn = document.getElementById('start-btn');
-        const letterOverlay = document.getElementById('letter-overlay');
+        const finalScreen = document.getElementById('final-screen');
         const signBtn = document.getElementById('sign-btn');
         const recipientArea = document.getElementById('recipient-area');
 
-        // 1. Dừng video ở frame đầu tiên khi tải trang
+        // 1. Reset video khi tải trang
         video.pause();
         video.currentTime = 0;
 
-        // 2. Sự kiện bấm nút Bắt đầu
+        // 2. Bắt đầu video
         startBtn.addEventListener('click', () => {
-            // Ẩn nút bắt đầu
             startScreen.style.opacity = '0';
             setTimeout(() => {
                 startScreen.style.display = 'none';
             }, 500);
-
-            // Chạy video
             video.play();
         });
 
-        // 3. Sự kiện khi Video chạy xong (Ended)
+        // 3. Khi video kết thúc -> Hiện màn hình trắng
         video.addEventListener('ended', () => {
-            // Hiện bức thư đè lên
-            letterOverlay.style.visibility = 'visible';
-            letterOverlay.style.opacity = '1';
+            finalScreen.style.visibility = 'visible';
+            finalScreen.style.opacity = '1';
         });
 
-        // 4. Sự kiện nút Ký tên
+        // 4. Chức năng ký tên
         signBtn.addEventListener('click', () => {
-            // Xóa nút bấm, thay bằng tên người nhận
             recipientArea.innerHTML = '<span class="signed-text">Phan Lê Trang</span>';
         });
 
