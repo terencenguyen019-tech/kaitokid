@@ -59,12 +59,21 @@
             font-family: 'Dancing Script', cursive;
             transition: all 0.3s ease;
             box-shadow: 0 0 20px rgba(255,255,255,0.2);
+            /* Thêm hiệu ứng nhịp đập cho nút bấm theo nhạc */
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
         }
 
         #start-btn:hover {
             background: white;
             color: #000;
             transform: scale(1.1);
+            animation: none;
         }
 
         /* Màn hình trắng cuối cùng */
@@ -82,7 +91,6 @@
             align-items: center;
             opacity: 0; 
             visibility: hidden;
-            /* Đổi thời gian hiện từ 1.5s xuống 0.1s để khớp với độ lóe của súng */
             transition: opacity 0.5s ease-out; 
         }
 
@@ -97,10 +105,11 @@
             padding: 0 20px;
             transform: translateY(20px);
             opacity: 0;
-            transition: all 1s ease 0.5s; /* Chữ hiện chậm hơn nền một chút */
+            transition: all 1s ease 0.5s;
+            position: relative;
+            z-index: 22;
         }
         
-        /* Class để kích hoạt hiệu ứng chữ trồi lên */
         .letter-content.show {
             transform: translateY(0);
             opacity: 1;
@@ -114,7 +123,9 @@
             border-top: 2px solid #000;
             padding-top: 30px;
             opacity: 0;
-            transition: all 1s ease 1s; /* Footer hiện sau content */
+            transition: all 1s ease 1s;
+            position: relative;
+            z-index: 22;
         }
         
         .letter-footer.show {
@@ -143,13 +154,21 @@
             color: #0a0a2a;
         }
 
+        /* LOGO KAITO KID */
         #kaito-logo {
             position: absolute;
-            bottom: 30px;
-            right: 30px;
-            width: 120px; 
+            bottom: 20px;
+            right: 20px;
+            width: 80px; /* Logo nhỏ gọn */
             height: auto;
-            opacity: 0.9;
+            opacity: 0; /* Ẩn ban đầu */
+            transition: opacity 1s ease 2s; /* Hiện ra cuối cùng */
+            z-index: 25;
+            mix-blend-mode: multiply; /* Giúp logo hòa vào nền trắng đẹp hơn nếu logo có nền trắng */
+        }
+        
+        #kaito-logo.show {
+            opacity: 0.8;
         }
 
         #sign-btn {
@@ -185,10 +204,13 @@
 </head>
 <body>
 
+    <audio id="bg-music" loop>
+        <source src="phep-mau-lofi.mp3" type="audio/mp3">
+    </audio>
+
     <div class="container">
         <video id="bg-video" playsinline>
             <source src="video.mp4" type="video/mp4">
-            Trình duyệt của bạn không hỗ trợ video này.
         </video>
 
         <div id="start-screen">
@@ -216,7 +238,8 @@
                 </div>
             </div>
 
-            <img id="kaito-logo" src="kaito-logo.jpg" alt="Kaito Kid Logo" style="display:none"> </div>
+            <img id="kaito-logo" src="kaito-logo.jpg" alt="Kaito Kid Logo">
+        </div>
     </div>
 
     <script>
@@ -228,45 +251,66 @@
         const footerArea = document.getElementById('footer-area');
         const signBtn = document.getElementById('sign-btn');
         const recipientArea = document.getElementById('recipient-area');
+        const logo = document.getElementById('kaito-logo');
+        const music = document.getElementById('bg-music');
 
-        let isLetterShown = false; // Biến cờ để tránh code chạy lặp lại
+        let isLetterShown = false; 
 
-        // 1. Reset video khi tải trang
+        // --- XỬ LÝ NHẠC NỀN ---
+        // Đặt âm lượng vừa phải để không lấn át tiếng súng trong video
+        music.volume = 0.5; 
+
+        // Hàm thử phát nhạc
+        function tryPlayMusic() {
+            music.play().catch(error => {
+                console.log("Trình duyệt chặn autoplay, chờ tương tác...");
+            });
+        }
+
+        // Cố phát ngay khi tải trang
+        window.addEventListener('load', tryPlayMusic);
+        
+        // Nếu bị chặn, phát ngay khi người dùng click lần đầu vào bất cứ đâu
+        document.addEventListener('click', function() {
+            if (music.paused) {
+                music.play();
+            }
+        }, { once: true });
+        // -----------------------
+
+        // 1. Reset video
         video.pause();
         video.currentTime = 0;
 
-        // 2. Bắt đầu video
+        // 2. Bắt đầu video khi ấn nút
         startBtn.addEventListener('click', () => {
             startScreen.style.opacity = '0';
             setTimeout(() => {
                 startScreen.style.display = 'none';
             }, 500);
             video.play();
+            // Nhạc vẫn tiếp tục chạy (loop) làm nền
         });
 
-        // 3. LOGIC MỚI: Bắt sự kiện thời gian thay vì đợi hết video
+        // 3. Logic hiện thư theo thời gian
         video.addEventListener('timeupdate', () => {
-            // 5.7 giây là lúc màn hình trắng xóa trong video
-            // Nếu muốn sớm hơn thì giảm số này (ví dụ 5.5), muộn hơn thì tăng (5.9)
+            // Giây thứ 5.7 (hoặc chỉnh lại tùy độ trễ máy bạn)
             if (video.currentTime >= 5.7 && !isLetterShown) {
-                isLetterShown = true; // Đánh dấu là đã hiện thư
+                isLetterShown = true; 
                 
-                // Hiện màn hình trắng đè lên
                 finalScreen.style.visibility = 'visible';
                 finalScreen.style.opacity = '1';
 
-                // Pause video lại để tiết kiệm tài nguyên
                 video.pause();
 
-                // Hiệu ứng chữ trồi lên sau khi màn hình trắng hiện ra
-                setTimeout(() => {
-                    contentText.classList.add('show');
-                    footerArea.classList.add('show');
-                }, 100);
+                // Animation xuất hiện tuần tự
+                setTimeout(() => { contentText.classList.add('show'); }, 100);
+                setTimeout(() => { footerArea.classList.add('show'); }, 800);
+                setTimeout(() => { logo.classList.add('show'); }, 1500); // Logo hiện cuối cùng
             }
         });
 
-        // 4. Chức năng ký tên
+        // 4. Ký tên
         signBtn.addEventListener('click', () => {
             recipientArea.innerHTML = '<span class="signed-text">Phan Lê Trang</span>';
         });
