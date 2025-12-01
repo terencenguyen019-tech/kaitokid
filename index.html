@@ -16,13 +16,14 @@
             font-family: 'Montserrat', sans-serif;
         }
 
+        /* Container chính */
         .container {
             position: relative;
             width: 100vw;
             height: 100vh;
-            background-color: #000; /* Nền đen dự phòng */
         }
 
+        /* Video làm nền */
         #bg-video {
             position: absolute;
             top: 0;
@@ -33,6 +34,7 @@
             z-index: 1;
         }
 
+        /* Nút bắt đầu */
         #start-screen {
             position: absolute;
             top: 0; left: 0;
@@ -73,14 +75,14 @@
             width: 100%;
             height: 100%;
             background-color: #ffffff; 
-            z-index: 999; /* Đảm bảo luôn nằm trên cùng */
+            z-index: 20; 
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            opacity: 0;
+            opacity: 0; 
             visibility: hidden;
-            /* Transition cực nhanh để đè ngay lập tức */
+            /* Đổi thời gian hiện từ 1.5s xuống 0.1s để khớp với độ lóe của súng */
             transition: opacity 0.5s ease-out; 
         }
 
@@ -93,12 +95,15 @@
             margin-bottom: 50px;
             max-width: 800px;
             padding: 0 20px;
-            transform: translateY(30px);
-            transition: transform 0.8s ease-out;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 1s ease 0.5s; /* Chữ hiện chậm hơn nền một chút */
         }
         
-        .show-content .letter-content {
+        /* Class để kích hoạt hiệu ứng chữ trồi lên */
+        .letter-content.show {
             transform: translateY(0);
+            opacity: 1;
         }
 
         .letter-footer {
@@ -108,6 +113,12 @@
             justify-content: space-between;
             border-top: 2px solid #000;
             padding-top: 30px;
+            opacity: 0;
+            transition: all 1s ease 1s; /* Footer hiện sau content */
+        }
+        
+        .letter-footer.show {
+            opacity: 1;
         }
 
         .footer-col {
@@ -136,7 +147,7 @@
             position: absolute;
             bottom: 30px;
             right: 30px;
-            width: 120px;
+            width: 120px; 
             height: auto;
             opacity: 0.9;
         }
@@ -177,6 +188,7 @@
     <div class="container">
         <video id="bg-video" playsinline>
             <source src="video.mp4" type="video/mp4">
+            Trình duyệt của bạn không hỗ trợ video này.
         </video>
 
         <div id="start-screen">
@@ -184,13 +196,13 @@
         </div>
 
         <div id="final-screen">
-            <div class="letter-content">
+            <div class="letter-content" id="content-text">
                 "Gửi đến người bạn bé nhỏ của tôi,<br>
                 hẹn gặp lại vào một ngày không xa,<br>
                 mến chào và tạm biệt!"
             </div>
 
-            <div class="letter-footer">
+            <div class="letter-footer" id="footer-area">
                 <div class="footer-col">
                     <span class="role-title">Người gửi</span>
                     <span class="signature">Tuấn Kaito</span>
@@ -204,8 +216,7 @@
                 </div>
             </div>
 
-            <img id="kaito-logo" src="kaito-logo.jpg" alt="Kaito Kid Logo">
-        </div>
+            <img id="kaito-logo" src="kaito-logo.jpg" alt="Kaito Kid Logo" style="display:none"> </div>
     </div>
 
     <script>
@@ -213,16 +224,18 @@
         const startScreen = document.getElementById('start-screen');
         const startBtn = document.getElementById('start-btn');
         const finalScreen = document.getElementById('final-screen');
+        const contentText = document.getElementById('content-text');
+        const footerArea = document.getElementById('footer-area');
         const signBtn = document.getElementById('sign-btn');
         const recipientArea = document.getElementById('recipient-area');
 
-        let isLetterShown = false; 
+        let isLetterShown = false; // Biến cờ để tránh code chạy lặp lại
 
-        // 1. Reset
+        // 1. Reset video khi tải trang
         video.pause();
         video.currentTime = 0;
 
-        // 2. Bắt đầu
+        // 2. Bắt đầu video
         startBtn.addEventListener('click', () => {
             startScreen.style.opacity = '0';
             setTimeout(() => {
@@ -231,32 +244,29 @@
             video.play();
         });
 
-        // 3. XỬ LÝ LỖI ĐEN MÀN HÌNH
+        // 3. LOGIC MỚI: Bắt sự kiện thời gian thay vì đợi hết video
         video.addEventListener('timeupdate', () => {
-            // Mình hạ xuống 4.8s để bắt sớm hơn (tránh video hết mới hiện)
-            if (video.currentTime >= 4.8 && !isLetterShown) {
-                isLetterShown = true;
+            // 5.7 giây là lúc màn hình trắng xóa trong video
+            // Nếu muốn sớm hơn thì giảm số này (ví dụ 5.5), muộn hơn thì tăng (5.9)
+            if (video.currentTime >= 5.7 && !isLetterShown) {
+                isLetterShown = true; // Đánh dấu là đã hiện thư
                 
-                // MẸO QUAN TRỌNG: Dừng video ngay lập tức để giữ khung hình sáng
-                video.pause(); 
-
+                // Hiện màn hình trắng đè lên
                 finalScreen.style.visibility = 'visible';
                 finalScreen.style.opacity = '1';
-                finalScreen.classList.add('show-content');
+
+                // Pause video lại để tiết kiệm tài nguyên
+                video.pause();
+
+                // Hiệu ứng chữ trồi lên sau khi màn hình trắng hiện ra
+                setTimeout(() => {
+                    contentText.classList.add('show');
+                    footerArea.classList.add('show');
+                }, 100);
             }
         });
 
-        // Nếu video lỡ chạy hết mà chưa kịp bắt sự kiện trên (phòng hờ)
-        video.addEventListener('ended', () => {
-             if (!isLetterShown) {
-                isLetterShown = true;
-                finalScreen.style.visibility = 'visible';
-                finalScreen.style.opacity = '1';
-                finalScreen.classList.add('show-content');
-             }
-        });
-
-        // 4. Ký tên
+        // 4. Chức năng ký tên
         signBtn.addEventListener('click', () => {
             recipientArea.innerHTML = '<span class="signed-text">Phan Lê Trang</span>';
         });
