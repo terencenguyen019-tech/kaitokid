@@ -59,7 +59,6 @@
             font-family: 'Dancing Script', cursive;
             transition: all 0.3s ease;
             box-shadow: 0 0 20px rgba(255,255,255,0.2);
-            /* Thêm hiệu ứng nhịp đập cho nút bấm theo nhạc */
             animation: pulse 2s infinite;
         }
 
@@ -100,7 +99,7 @@
             color: #333;
             font-weight: 500;
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 30px; /* Giảm khoảng cách để nhường chỗ cho footer */
             max-width: 800px;
             padding: 0 20px;
             transform: translateY(20px);
@@ -116,12 +115,13 @@
         }
 
         .letter-footer {
-            width: 60%;
-            max-width: 600px;
+            width: 70%; /* Mở rộng chiều ngang footer chút để thoáng */
+            max-width: 700px;
             display: flex;
             justify-content: space-between;
+            align-items: flex-end; /* Căn đáy cho thẳng hàng */
             border-top: 2px solid #000;
-            padding-top: 30px;
+            padding-top: 20px;
             opacity: 0;
             transition: all 1s ease 1s;
             position: relative;
@@ -137,34 +137,45 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: flex-end;
         }
 
         .role-title {
-            font-size: 1rem;
+            font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 2px;
-            color: #555;
+            color: #888;
             margin-bottom: 15px;
             font-weight: bold;
+        }
+
+        /* Style cho chữ ký 1412 */
+        .kid-signature-img {
+            width: 100px; /* Kích thước chữ ký */
+            height: auto;
+            margin-bottom: -15px; /* Kéo tên sát lên chữ ký một chút */
+            mix-blend-mode: multiply; /* Xóa nền trắng của ảnh để tệp vào giấy */
+            display: block;
         }
 
         .signature {
             font-family: 'Dancing Script', cursive;
             font-size: 2.2rem;
             color: #0a0a2a;
+            margin-top: 10px;
         }
 
-        /* LOGO KAITO KID */
+        /* LOGO KAITO KID ở góc */
         #kaito-logo {
             position: absolute;
             bottom: 20px;
             right: 20px;
-            width: 80px; /* Logo nhỏ gọn */
+            width: 80px; 
             height: auto;
-            opacity: 0; /* Ẩn ban đầu */
-            transition: opacity 1s ease 2s; /* Hiện ra cuối cùng */
+            opacity: 0;
+            transition: opacity 1s ease 2s;
             z-index: 25;
-            mix-blend-mode: multiply; /* Giúp logo hòa vào nền trắng đẹp hơn nếu logo có nền trắng */
+            mix-blend-mode: multiply;
         }
         
         #kaito-logo.show {
@@ -181,6 +192,7 @@
             cursor: pointer;
             font-family: 'Montserrat', sans-serif;
             transition: all 0.3s;
+            margin-bottom: 10px; /* Căn chỉnh nút */
         }
 
         #sign-btn:hover {
@@ -193,6 +205,7 @@
             font-size: 2rem;
             color: #d63031;
             animation: stamp 0.3s ease-out forwards;
+            margin-top: 10px;
         }
 
         @keyframes stamp {
@@ -227,12 +240,13 @@
             <div class="letter-footer" id="footer-area">
                 <div class="footer-col">
                     <span class="role-title">Người gửi</span>
+                    <img src="kid-signature.png" alt="1412" class="kid-signature-img">
                     <span class="signature">Tuấn Kaito</span>
                 </div>
 
                 <div class="footer-col">
                     <span class="role-title">Người nhận</span>
-                    <div id="recipient-area">
+                    <div id="recipient-area" style="min-height: 60px; display:flex; align-items:flex-end;">
                         <button id="sign-btn">Ký tên</button>
                     </div>
                 </div>
@@ -256,65 +270,41 @@
 
         let isLetterShown = false; 
 
-        // --- XỬ LÝ NHẠC NỀN ---
-        // Đặt âm lượng vừa phải để không lấn át tiếng súng trong video
         music.volume = 0.5; 
 
-        // Hàm thử phát nhạc
         function tryPlayMusic() {
-            music.play().catch(error => {
-                console.log("Trình duyệt chặn autoplay, chờ tương tác...");
-            });
+            music.play().catch(error => { console.log("Chờ tương tác..."); });
         }
-
-        // Cố phát ngay khi tải trang
         window.addEventListener('load', tryPlayMusic);
-        
-        // Nếu bị chặn, phát ngay khi người dùng click lần đầu vào bất cứ đâu
         document.addEventListener('click', function() {
-            if (music.paused) {
-                music.play();
-            }
+            if (music.paused) music.play();
         }, { once: true });
-        // -----------------------
 
-        // 1. Reset video
         video.pause();
         video.currentTime = 0;
 
-        // 2. Bắt đầu video khi ấn nút
         startBtn.addEventListener('click', () => {
             startScreen.style.opacity = '0';
-            setTimeout(() => {
-                startScreen.style.display = 'none';
-            }, 500);
+            setTimeout(() => { startScreen.style.display = 'none'; }, 500);
             video.play();
-            // Nhạc vẫn tiếp tục chạy (loop) làm nền
         });
 
-        // 3. Logic hiện thư theo thời gian
         video.addEventListener('timeupdate', () => {
-            // Giây thứ 5.7 (hoặc chỉnh lại tùy độ trễ máy bạn)
             if (video.currentTime >= 5.7 && !isLetterShown) {
                 isLetterShown = true; 
-                
                 finalScreen.style.visibility = 'visible';
                 finalScreen.style.opacity = '1';
-
                 video.pause();
 
-                // Animation xuất hiện tuần tự
                 setTimeout(() => { contentText.classList.add('show'); }, 100);
                 setTimeout(() => { footerArea.classList.add('show'); }, 800);
-                setTimeout(() => { logo.classList.add('show'); }, 1500); // Logo hiện cuối cùng
+                setTimeout(() => { logo.classList.add('show'); }, 1500);
             }
         });
 
-        // 4. Ký tên
         signBtn.addEventListener('click', () => {
             recipientArea.innerHTML = '<span class="signed-text">Phan Lê Trang</span>';
         });
-
     </script>
 </body>
 </html>
