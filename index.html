@@ -16,14 +16,13 @@
             font-family: 'Montserrat', sans-serif;
         }
 
-        /* Container chính */
         .container {
             position: relative;
             width: 100vw;
             height: 100vh;
+            background-color: #000; /* Nền đen dự phòng */
         }
 
-        /* Video làm nền */
         #bg-video {
             position: absolute;
             top: 0;
@@ -34,7 +33,6 @@
             z-index: 1;
         }
 
-        /* Nút bắt đầu */
         #start-screen {
             position: absolute;
             top: 0; left: 0;
@@ -67,23 +65,23 @@
             transform: scale(1.1);
         }
 
-        /* Màn hình trắng cuối cùng (Full màn hình) */
+        /* Màn hình trắng cuối cùng */
         #final-screen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #ffffff; /* Trùng màu với lá bài trong video */
-            z-index: 20; /* Đè lên video */
+            background-color: #ffffff; 
+            z-index: 999; /* Đảm bảo luôn nằm trên cùng */
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            opacity: 0; /* Ẩn ban đầu */
+            opacity: 0;
             visibility: hidden;
-            /* Transition nhanh hơn (0.8s) để khớp với tốc độ bài bay */
-            transition: opacity 0.8s ease-out; 
+            /* Transition cực nhanh để đè ngay lập tức */
+            transition: opacity 0.5s ease-out; 
         }
 
         .letter-content {
@@ -95,12 +93,10 @@
             margin-bottom: 50px;
             max-width: 800px;
             padding: 0 20px;
-            /* Hiệu ứng trượt nhẹ lên */
-            transform: translateY(20px);
-            transition: transform 1s ease-out;
+            transform: translateY(30px);
+            transition: transform 0.8s ease-out;
         }
         
-        /* Class để kích hoạt hiệu ứng trượt chữ */
         .show-content .letter-content {
             transform: translateY(0);
         }
@@ -136,7 +132,6 @@
             color: #0a0a2a;
         }
 
-        /* Logo Kaito Kid */
         #kaito-logo {
             position: absolute;
             bottom: 30px;
@@ -182,7 +177,6 @@
     <div class="container">
         <video id="bg-video" playsinline>
             <source src="video.mp4" type="video/mp4">
-            Trình duyệt của bạn không hỗ trợ video này.
         </video>
 
         <div id="start-screen">
@@ -222,13 +216,13 @@
         const signBtn = document.getElementById('sign-btn');
         const recipientArea = document.getElementById('recipient-area');
 
-        let isLetterShown = false; // Biến cờ để đảm bảo thư chỉ hiện 1 lần
+        let isLetterShown = false; 
 
-        // 1. Reset video
+        // 1. Reset
         video.pause();
         video.currentTime = 0;
 
-        // 2. Bắt đầu video
+        // 2. Bắt đầu
         startBtn.addEventListener('click', () => {
             startScreen.style.opacity = '0';
             setTimeout(() => {
@@ -237,23 +231,32 @@
             video.play();
         });
 
-        // 3. SỬ DỤNG TIMEUPDATE thay vì ENDED
-        // Video này dài khoảng 7s. Cảnh lá bài bắn ra full màn hình trắng là khoảng 5.5s
+        // 3. XỬ LÝ LỖI ĐEN MÀN HÌNH
         video.addEventListener('timeupdate', () => {
-            // Nếu video chạy qua giây thứ 5.5 và thư chưa hiện
-            if (video.currentTime >= 5.5 && !isLetterShown) {
-                isLetterShown = true; // Đánh dấu đã hiện
+            // Mình hạ xuống 4.8s để bắt sớm hơn (tránh video hết mới hiện)
+            if (video.currentTime >= 4.8 && !isLetterShown) {
+                isLetterShown = true;
+                
+                // MẸO QUAN TRỌNG: Dừng video ngay lập tức để giữ khung hình sáng
+                video.pause(); 
 
-                // Hiện màn hình trắng (lá thư)
                 finalScreen.style.visibility = 'visible';
                 finalScreen.style.opacity = '1';
-                
-                // Thêm class để chữ trượt lên nhẹ nhàng
                 finalScreen.classList.add('show-content');
             }
         });
 
-        // 4. Chức năng ký tên
+        // Nếu video lỡ chạy hết mà chưa kịp bắt sự kiện trên (phòng hờ)
+        video.addEventListener('ended', () => {
+             if (!isLetterShown) {
+                isLetterShown = true;
+                finalScreen.style.visibility = 'visible';
+                finalScreen.style.opacity = '1';
+                finalScreen.classList.add('show-content');
+             }
+        });
+
+        // 4. Ký tên
         signBtn.addEventListener('click', () => {
             recipientArea.innerHTML = '<span class="signed-text">Phan Lê Trang</span>';
         });
